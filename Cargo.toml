@@ -14,3 +14,7 @@ rayon = "1.10.0"
 lto = true
 codegen-units = 1
 panic = "abort"
+
+[profile.release-with-debug]
+inherits = "release"
+debug = true

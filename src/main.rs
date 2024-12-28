@@ -166,7 +166,7 @@ fn main() {
 
     for (num_used_categories, turns) in turns_by_num_used_categories.iter().enumerate().rev() {
         let partial_turn_evs = turns
-            .par_chunks(chunk_size)
+            .chunks(chunk_size)
             .flat_map(|turns| {
                 let mut keep_scratch = vec![0.0; usize::from(n_keeps)];
                 let mut roll_scratch = vec![0.0; usize::from(n_rolls)];

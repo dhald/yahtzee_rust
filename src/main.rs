@@ -2,10 +2,7 @@ use category::Category;
 use clap::Parser;
 use dice::{Dice, KeepAndRoll};
 use rayon::{prelude::*, ThreadPoolBuilder};
-use std::{
-    ops::{Div, Mul},
-    time::Instant,
-};
+use std::time::Instant;
 use turn::Turn;
 
 mod category;
@@ -160,13 +157,11 @@ fn main() {
 
     let mut turn_evs: Vec<f32> = vec![0.0; Turn::TOTAL_TURNS as usize];
 
-    let mut turns_computed = 0;
-
     let now = Instant::now();
 
-    for (num_used_categories, turns) in turns_by_num_used_categories.iter().enumerate().rev() {
+    for turns in turns_by_num_used_categories.iter().rev() {
         let partial_turn_evs = turns
-            .chunks(chunk_size)
+            .par_chunks(chunk_size)
             .flat_map(|turns| {
                 let mut keep_scratch = vec![0.0; usize::from(n_keeps)];
                 let mut roll_scratch = vec![0.0; usize::from(n_rolls)];
@@ -190,18 +185,6 @@ fn main() {
                 turn_evs
             })
             .collect::<Vec<(&Turn, f32)>>();
-
-        turns_computed += turns.len() as u32;
-        let time_elapsed = now.elapsed();
-        let time_per_turn = time_elapsed.div(turns_computed);
-        let turns_remaining = Turn::TOTAL_TURNS - turns_computed;
-        let estimated_time_to_completion = time_per_turn.mul(turns_remaining);
-        println!("Finished computing EVs for turns with {} used categories. Turns computed: {}. Elapsed time: {:?}. Time_per_turn: {:?}. Estimated time to completion: {:?}.", 
-            num_used_categories,
-            turns_computed,
-            time_elapsed,
-            time_per_turn,
-            estimated_time_to_completion);
 
         partial_turn_evs.iter().for_each(|(turn, ev)| {
             turn_evs[turn.as_int() as usize] = *ev;

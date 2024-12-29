@@ -7,7 +7,6 @@ edition = "2021"
 strum = "0.26"
 strum_macros = "0.26"
 clap = { version = "4.5.23", features = ["derive"] }
-threadpool = "1.0"
 rayon = "1.10.0"
 
 [profile.release]
